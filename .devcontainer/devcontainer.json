@@ -1,0 +1,23 @@
+{
+  "name": "vscode",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.yml"
+  ],
+  "service": "server",
+  "workspaceFolder": "/workspace",
+  "settings": {
+    "go.toolsManagement.checkForUpdates": "local",
+    "go.useLanguageServer": true,
+    "go.gopath": "/go",
+    "go.goroot": "/usr/local/go"
+  },
+  "extensions": [
+    "golang.go",
+    "bufbuild.vscode-buf",
+    "docsmsft.docs-markdown",
+    "eamodio.gitlens",
+    "editorconfig.editorconfig",
+  ],
+  "postCreateCommand": "make tool",
+}

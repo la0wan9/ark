@@ -1,0 +1,10 @@
+version: '3.0'
+services:
+  server:
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - .:/workspace:cached

@@ -1,0 +1,8 @@
+.vscode
+.env
+*.bak
+*.key
+*.log
+*.swp
+/tmp
+/vendor

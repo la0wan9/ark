@@ -1,0 +1,12 @@
+version: "3.0"
+services:
+  server:
+    build:
+      context: .
+      dockerfile: dockerfile
+      args:
+        APP: ${APP}
+    ports:
+      - "${GRPC_PORT}:${GRPC_PORT}"
+      - "${REST_PORT}:${REST_PORT}"
+      - "${DEBUG_PORT}:${DEBUG_PORT}"
