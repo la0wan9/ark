@@ -1,21 +1,19 @@
 package spider
 
 import (
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
-	"strconv"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/debug"
 	"github.com/gocolly/colly/v2/extensions"
-	"github.com/spf13/cobra"
-
 	"github.com/la0wan9/ark/internal/adoc"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cast"
+	"github.com/spf13/cobra"
 )
-
-const url = "http://www.mca.gov.cn/article/sj/xzqh/1980/"
 
 // NewAdocCmd creates a new adoc command
 func NewAdocCmd() *cobra.Command {
@@ -27,77 +25,75 @@ func NewAdocCmd() *cobra.Command {
 }
 
 func adocCmd(command *cobra.Command, args []string) {
-	entrance := colly.NewCollector()
-	_ = entrance.Limit(&colly.LimitRule{
-		Delay:       1 * time.Second,
-		RandomDelay: 1 * time.Second,
+	URL := "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/"
+	responseCallback := func(r *colly.Response) {
+		// os.WriteFile("response.html", r.Body, 0666)
+		if strings.Contains(string(r.Body), "请开启JavaScript并刷新该页") {
+			time.Sleep(1 * time.Minute)
+			r.Request.Retry()
+		}
+	}
+	errorCallback := func(r *colly.Response, err error) {
+		log.Info(err)
+		r.Request.Retry()
+	}
+	entrance := colly.NewCollector(
+		colly.Debugger(&debug.LogDebugger{}),
+		colly.DetectCharset(),
+	)
+	entrance.Limit(&colly.LimitRule{
+		DomainGlob: "*.stats.gov.cn",
+		Delay:      100 * time.Millisecond,
 	})
+	entrance.OnResponse(responseCallback)
+	entrance.OnError(errorCallback)
 	extensions.RandomUserAgent(entrance)
 	extensions.Referer(entrance)
 	target := entrance.Clone()
-	selector := "div#list_content tr:nth-child(1) > td.arlisttd > a"
+	target.OnResponse(responseCallback)
+	target.OnError(errorCallback)
+	extensions.RandomUserAgent(target)
+	extensions.Referer(target)
+	selector := "ul.center_list_contlist > li:first-child > a"
 	entrance.OnHTML(selector, func(e *colly.HTMLElement) {
-		err := entrance.Visit(e.Request.AbsoluteURL(e.Attr("href")))
-		if err != nil {
-			panic(err)
-		}
+		entrance.Visit(e.Request.AbsoluteURL(e.Attr("href")))
 	})
-	selector = "div#zoom p:nth-child(2) > a"
+	selector = "tr.provincetr a"
 	entrance.OnHTML(selector, func(e *colly.HTMLElement) {
-		err := target.Visit(e.Request.AbsoluteURL(e.Attr("href")))
-		if err != nil {
-			panic(err)
+		code := strings.TrimSuffix(filepath.Base(e.Attr("href")), ".html")
+		if count := 12 - len(code); count > 0 {
+			code += strings.Repeat("0", count)
 		}
-	})
-	var adocs []*adoc.Adoc
-	parents := make(map[int]int64)
-	target.OnHTML("tr", func(e *colly.HTMLElement) {
 		adoc := &adoc.Adoc{}
-		e.ForEachWithBreak("td", func(_ int, e *colly.HTMLElement) bool {
-			if adoc.Code == 0 {
-				code, _ := strconv.ParseInt(e.Text, 10, 64)
-				if code == 0 {
-					return true
-				}
-				level := 0
-				switch {
-				case code%10000 == 0:
-				case code%100 == 0:
-					level = 1
-				default:
-					level = 2
-				}
-				parents[level] = code
-				parent := parents[level-1]
-				if parent == 0 && level == 2 {
-					parent = parents[0]
-				}
-				adoc.Code = code
-				adoc.Parent = parent
-				return true
+		adoc.Name = e.Text
+		adoc.Code = cast.ToInt64(code)
+		fmt.Println(adoc)
+		e.Request.Ctx.Put("parent", adoc.Code)
+		target.Request("GET", e.Request.AbsoluteURL(e.Attr("href")), nil, e.Request.Ctx, nil)
+	})
+	target.OnHTML("tr", func(e *colly.HTMLElement) {
+		var href string
+		adoc := &adoc.Adoc{}
+		if parent, ok := e.Request.Ctx.GetAny("parent").(int64); ok {
+			adoc.Parent = parent
+		}
+		e.ForEach("td", func(i int, e *colly.HTMLElement) {
+			if i == 0 {
+				href = e.ChildAttr("a", "href")
+				adoc.Code = cast.ToInt64(e.Text)
+			} else {
+				adoc.Name = e.Text
 			}
-			if adoc.Name == "" {
-				adoc.Name = strings.TrimSpace(e.Text)
-				return true
-			}
-			return false
 		})
-		if adoc.Code > 0 {
-			adocs = append(adocs, adoc)
+		if adoc.Code == 0 {
+			return
+		}
+		fmt.Println(adoc)
+		if href != "" {
+			URL := e.Request.AbsoluteURL(href)
+			e.Request.Ctx.Put("parent", adoc.Code)
+			target.Request("GET", URL, nil, e.Request.Ctx, nil)
 		}
 	})
-	if err := entrance.Visit(url); err != nil {
-		panic(err)
-	}
-	if isJSON, _ := command.Flags().GetBool("json"); isJSON {
-		out, _ := json.MarshalIndent(adocs, "", "  ")
-		fmt.Println(string(out))
-	} else if isXML, _ := command.Flags().GetBool("xml"); isXML {
-		out, _ := xml.MarshalIndent(adocs, "", "  ")
-		fmt.Println(xml.Header + string(out))
-	} else {
-		for _, adoc := range adocs {
-			fmt.Println(adoc)
-		}
-	}
+	entrance.Visit(URL)
 }

@@ -14,6 +14,7 @@ require (
 	github.com/prometheus/client_golang v1.7.1
 	github.com/securego/gosec/v2 v2.8.1
 	github.com/sirupsen/logrus v1.8.1
+	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
 	github.com/tomwright/dasel v1.20.0
@@ -73,7 +74,6 @@ require (
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
-	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
