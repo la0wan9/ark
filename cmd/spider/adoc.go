@@ -67,18 +67,18 @@ func adocCmd(command *cobra.Command, args []string) {
 	})
 	selector = "tr.provincetr a"
 	entrance.OnHTML(selector, func(e *colly.HTMLElement) {
-		adoc := &adoc.Adoc{
+		a := &adoc.Adoc{
 			Parent: -1,
 		}
 		code := strings.TrimSuffix(filepath.Base(e.Attr("href")), ".html")
 		if count := 12 - len(code); count > 0 {
 			code += strings.Repeat("0", count)
 		}
-		adoc.Code = cast.ToInt64(code)
-		adoc.Name = e.Text
-		fmt.Println(adoc)
+		a.Code = cast.ToInt64(code)
+		a.Name = e.Text
+		fmt.Println(a)
 		if href := e.Attr("href"); href != "" {
-			e.Request.Ctx.Put("parent", adoc.Code)
+			e.Request.Ctx.Put("parent", a.Code)
 			target.Request(
 				"GET", e.Request.AbsoluteURL(href), nil, e.Request.Ctx, nil,
 			)
