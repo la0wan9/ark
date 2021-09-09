@@ -11,10 +11,11 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/debug"
 	"github.com/gocolly/colly/v2/extensions"
-	"github.com/la0wan9/ark/internal/adoc"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
+
+	"github.com/la0wan9/ark/internal/adoc"
 )
 
 // NewAdocCmd creates a new adoc command
