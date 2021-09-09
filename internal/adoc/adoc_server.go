@@ -47,7 +47,7 @@ func (s *Server) Register(server *grpc.Server) {
 	adocv1.RegisterAdocServiceServer(server, s)
 }
 
-// Index returns *adocv1.Adocs and error
+// Index returns *adocv1.IndexResponse and error
 func (s *Server) Index(ctx context.Context, req *adocv1.IndexRequest) (*adocv1.IndexResponse, error) {
 	res := &adocv1.IndexResponse{}
 	filter := func(a *Adoc) bool {
