@@ -49,8 +49,8 @@ func (s *Server) Register(server *grpc.Server) {
 
 // Index returns *adocv1.Adocs and error
 func (s *Server) Index(ctx context.Context, req *adocv1.IndexRequest) (*adocv1.IndexResponse, error) {
-	var adocMessages []*adocv1.Adoc
-	linq.From(adocs).WhereT(func(a *Adoc) bool {
+	res := &adocv1.IndexResponse{}
+	filter := func(a *Adoc) bool {
 		ok := false
 		if code := req.GetCode(); code != 0 {
 			ok = true
@@ -74,11 +74,13 @@ func (s *Server) Index(ctx context.Context, req *adocv1.IndexRequest) (*adocv1.I
 			return false
 		}
 		return true
-	}).SelectT(func(a *Adoc) *adocv1.Adoc {
-		return FromAdocToMessage(a)
-	}).ToSlice(&adocMessages)
-	response := &adocv1.IndexResponse{
-		Adocs: adocMessages,
 	}
-	return response, nil
+	transformer := func(a *Adoc) *adocv1.Adoc {
+		return FromAdocToMessage(a)
+	}
+	linq.From(adocs).
+		WhereT(filter).
+		SelectT(transformer).
+		ToSlice(&res.Adocs)
+	return res, nil
 }
