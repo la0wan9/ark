@@ -28,12 +28,11 @@ func init() {
 		if len(recorder) != 3 {
 			panic("invalid data")
 		}
-		adoc := &Adoc{
+		adocs = append(adocs, &Adoc{
 			Code:   cast.ToInt64(recorder[0]),
 			Parent: cast.ToInt64(recorder[1]),
 			Name:   recorder[2],
-		}
-		adocs = append(adocs, adoc)
+		})
 	}
 }
 

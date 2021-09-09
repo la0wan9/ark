@@ -86,24 +86,24 @@ func adocCmd(command *cobra.Command, args []string) {
 	})
 	target.OnHTML("tr", func(e *colly.HTMLElement) {
 		var href string
-		adoc := &adoc.Adoc{}
+		a := &adoc.Adoc{}
 		if parent, ok := e.Request.Ctx.GetAny("parent").(int64); ok {
-			adoc.Parent = parent
+			a.Parent = parent
 		}
 		e.ForEach("td", func(i int, e *colly.HTMLElement) {
 			if i == 0 {
 				href = e.ChildAttr("a", "href")
-				adoc.Code = cast.ToInt64(e.Text)
+				a.Code = cast.ToInt64(e.Text)
 			} else {
-				adoc.Name = e.Text
+				a.Name = e.Text
 			}
 		})
-		if adoc.Code == 0 {
+		if a.Code == 0 {
 			return
 		}
-		fmt.Println(adoc)
+		fmt.Println(a)
 		if href != "" {
-			e.Request.Ctx.Put("parent", adoc.Code)
+			e.Request.Ctx.Put("parent", a.Code)
 			target.Request(
 				"GET", e.Request.AbsoluteURL(href), nil, e.Request.Ctx, nil,
 			)
