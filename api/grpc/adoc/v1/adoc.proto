@@ -3,7 +3,6 @@ syntax = "proto3";
 package adoc.v1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
@@ -13,19 +12,25 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 
 service AdocService {
-  rpc Index(google.protobuf.Empty) returns (Adocs) {
+  rpc Index(IndexRequest) returns (IndexResponse) {
     option (google.api.http) = {
       get: "/v1/adocs"
     };
   }
 }
 
-message Adoc {
+message IndexRequest {
   int64 code = 1;
   int64 parent = 2;
   string name = 3;
 }
 
-message Adocs {
+message IndexResponse {
   repeated Adoc adocs = 1;
+}
+
+message Adoc {
+  int64 code = 1;
+  int64 parent = 2;
+  string name = 3;
 }

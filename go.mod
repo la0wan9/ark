@@ -3,6 +3,7 @@ module github.com/la0wan9/ark
 go 1.17
 
 require (
+	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/bufbuild/buf v0.54.1
 	github.com/cosmtrek/air v1.27.3
 	github.com/felixge/fgprof v0.9.1

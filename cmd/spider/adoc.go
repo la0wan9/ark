@@ -1,7 +1,9 @@
 package spider
 
 import (
+	"crypto/md5"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -26,8 +28,12 @@ func NewAdocCmd() *cobra.Command {
 
 func adocCmd(command *cobra.Command, args []string) {
 	URL := "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/"
+	tmp := filepath.Join(
+		os.TempDir(), fmt.Sprintf("%x.html", md5.Sum([]byte(URL))),
+	)
+	defer os.Remove(tmp)
 	responseCallback := func(r *colly.Response) {
-		// os.WriteFile("response.html", r.Body, 0666)
+		os.WriteFile(tmp, r.Body, 0600)
 		if strings.Contains(string(r.Body), "请开启JavaScript并刷新该页") {
 			time.Sleep(1 * time.Minute)
 			r.Request.Retry()
@@ -60,16 +66,22 @@ func adocCmd(command *cobra.Command, args []string) {
 	})
 	selector = "tr.provincetr a"
 	entrance.OnHTML(selector, func(e *colly.HTMLElement) {
+		adoc := &adoc.Adoc{
+			Parent: -1,
+		}
 		code := strings.TrimSuffix(filepath.Base(e.Attr("href")), ".html")
 		if count := 12 - len(code); count > 0 {
 			code += strings.Repeat("0", count)
 		}
-		adoc := &adoc.Adoc{}
-		adoc.Name = e.Text
 		adoc.Code = cast.ToInt64(code)
+		adoc.Name = e.Text
 		fmt.Println(adoc)
-		e.Request.Ctx.Put("parent", adoc.Code)
-		target.Request("GET", e.Request.AbsoluteURL(e.Attr("href")), nil, e.Request.Ctx, nil)
+		if href := e.Attr("href"); href != "" {
+			e.Request.Ctx.Put("parent", adoc.Code)
+			target.Request(
+				"GET", e.Request.AbsoluteURL(href), nil, e.Request.Ctx, nil,
+			)
+		}
 	})
 	target.OnHTML("tr", func(e *colly.HTMLElement) {
 		var href string
@@ -90,9 +102,10 @@ func adocCmd(command *cobra.Command, args []string) {
 		}
 		fmt.Println(adoc)
 		if href != "" {
-			URL := e.Request.AbsoluteURL(href)
 			e.Request.Ctx.Put("parent", adoc.Code)
-			target.Request("GET", URL, nil, e.Request.Ctx, nil)
+			target.Request(
+				"GET", e.Request.AbsoluteURL(href), nil, e.Request.Ctx, nil,
+			)
 		}
 	})
 	entrance.Visit(URL)

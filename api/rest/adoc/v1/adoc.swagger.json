@@ -23,7 +23,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1Adocs"
+              "$ref": "#/definitions/v1IndexResponse"
             }
           },
           "default": {
@@ -33,6 +33,28 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "parent",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "AdocService"
         ]
@@ -86,7 +108,7 @@
         }
       }
     },
-    "v1Adocs": {
+    "v1IndexResponse": {
       "type": "object",
       "properties": {
         "adocs": {

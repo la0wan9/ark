@@ -7,7 +7,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdocServiceClient interface {
-	Index(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Adocs, error)
+	Index(ctx context.Context, in *IndexRequest, opts ...grpc.CallOption) (*IndexResponse, error)
 }
 
 type adocServiceClient struct {
@@ -30,8 +29,8 @@ func NewAdocServiceClient(cc grpc.ClientConnInterface) AdocServiceClient {
 	return &adocServiceClient{cc}
 }
 
-func (c *adocServiceClient) Index(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Adocs, error) {
-	out := new(Adocs)
+func (c *adocServiceClient) Index(ctx context.Context, in *IndexRequest, opts ...grpc.CallOption) (*IndexResponse, error) {
+	out := new(IndexResponse)
 	err := c.cc.Invoke(ctx, "/adoc.v1.AdocService/Index", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -43,7 +42,7 @@ func (c *adocServiceClient) Index(ctx context.Context, in *emptypb.Empty, opts .
 // All implementations must embed UnimplementedAdocServiceServer
 // for forward compatibility
 type AdocServiceServer interface {
-	Index(context.Context, *emptypb.Empty) (*Adocs, error)
+	Index(context.Context, *IndexRequest) (*IndexResponse, error)
 	mustEmbedUnimplementedAdocServiceServer()
 }
 
@@ -51,7 +50,7 @@ type AdocServiceServer interface {
 type UnimplementedAdocServiceServer struct {
 }
 
-func (UnimplementedAdocServiceServer) Index(context.Context, *emptypb.Empty) (*Adocs, error) {
+func (UnimplementedAdocServiceServer) Index(context.Context, *IndexRequest) (*IndexResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Index not implemented")
 }
 func (UnimplementedAdocServiceServer) mustEmbedUnimplementedAdocServiceServer() {}
@@ -68,7 +67,7 @@ func RegisterAdocServiceServer(s grpc.ServiceRegistrar, srv AdocServiceServer) {
 }
 
 func _AdocService_Index_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(IndexRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -80,7 +79,7 @@ func _AdocService_Index_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/adoc.v1.AdocService/Index",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdocServiceServer).Index(ctx, req.(*emptypb.Empty))
+		return srv.(AdocServiceServer).Index(ctx, req.(*IndexRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
