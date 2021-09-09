@@ -70,10 +70,7 @@ func (s *Server) Index(ctx context.Context, req *adocv1.IndexRequest) (*adocv1.I
 				return false
 			}
 		}
-		if !ok {
-			return false
-		}
-		return true
+		return ok
 	}
 	transformer := func(a *Adoc) *adocv1.Adoc {
 		return FromAdocToMessage(a)
