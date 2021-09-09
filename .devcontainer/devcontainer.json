@@ -1,8 +1,8 @@
 {
   "name": "vscode",
   "dockerComposeFile": [
-    "../docker-compose.yaml",
-    "docker-compose.yaml"
+    "../compose.yaml",
+    "compose.yaml"
   ],
   "service": "server",
   "workspaceFolder": "/workspace",
