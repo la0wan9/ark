@@ -55,11 +55,11 @@ func (s *Server) Register(server *grpc.Server) {
 // Index returns *adocv1.IndexResponse and error
 func (s *Server) Index(ctx context.Context, req *adocv1.IndexRequest) (*adocv1.IndexResponse, error) {
 	res := &adocv1.IndexResponse{}
+	adoc := req.GetAdoc()
+	if adoc == nil {
+		return res, nil
+	}
 	filter := func(a *Adoc) bool {
-		adoc := req.GetAdoc()
-		if adoc == nil {
-			return false
-		}
 		ok := false
 		if code := adoc.GetCode(); code != 0 {
 			ok = true
