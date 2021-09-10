@@ -56,20 +56,24 @@ func (s *Server) Register(server *grpc.Server) {
 func (s *Server) Index(ctx context.Context, req *adocv1.IndexRequest) (*adocv1.IndexResponse, error) {
 	res := &adocv1.IndexResponse{}
 	filter := func(a *Adoc) bool {
+		adoc := req.GetAdoc()
+		if adoc == nil {
+			return false
+		}
 		ok := false
-		if code := req.GetCode(); code != 0 {
+		if code := adoc.GetCode(); code != 0 {
 			ok = true
 			if code != a.Code {
 				return false
 			}
 		}
-		if parent := req.GetParent(); parent != 0 {
+		if parent := adoc.GetParent(); parent != 0 {
 			ok = true
 			if parent != a.Parent {
 				return false
 			}
 		}
-		if name := req.GetName(); name != "" {
+		if name := adoc.GetName(); name != "" {
 			ok = true
 			if name != a.Name {
 				return false

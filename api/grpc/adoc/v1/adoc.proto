@@ -20,9 +20,7 @@ service AdocService {
 }
 
 message IndexRequest {
-  int64 code = 1;
-  int64 parent = 2;
-  string name = 3;
+  Adoc adoc = 1;
 }
 
 message IndexResponse {

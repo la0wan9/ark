@@ -35,21 +35,21 @@
         },
         "parameters": [
           {
-            "name": "code",
+            "name": "adoc.code",
             "in": "query",
             "required": false,
             "type": "string",
             "format": "int64"
           },
           {
-            "name": "parent",
+            "name": "adoc.parent",
             "in": "query",
             "required": false,
             "type": "string",
             "format": "int64"
           },
           {
-            "name": "name",
+            "name": "adoc.name",
             "in": "query",
             "required": false,
             "type": "string"
