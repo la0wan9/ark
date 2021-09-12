@@ -19,7 +19,7 @@ var adocs []*Adoc
 func init() {
 	file, err := data.FS.Open("adoc/adoc.txt")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer file.Close()
 	reader := csv.NewReader(file)
