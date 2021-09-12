@@ -6,12 +6,12 @@ import (
 	"io"
 
 	"github.com/ahmetb/go-linq/v3"
-	adocv1 "github.com/la0wan9/ark/pkg/adoc/v1"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	"google.golang.org/grpc"
 
 	"github.com/la0wan9/ark/data"
+	adocv1 "github.com/la0wan9/ark/pkg/adoc/v1"
 )
 
 var adocs []*Adoc
@@ -25,10 +25,10 @@ func init() {
 	reader := csv.NewReader(file)
 	for {
 		recorder, err := reader.Read()
-		if err == io.EOF {
-			break
-		}
 		if err != nil {
+			if err == io.EOF {
+				break
+			}
 			log.Fatal(err)
 		}
 		if len(recorder) != 3 {
